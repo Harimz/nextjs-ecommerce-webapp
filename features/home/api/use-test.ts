@@ -5,24 +5,20 @@ import { client } from "@/lib/rpc";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 
-type ResponseType = InferResponseType<
-  (typeof client.api.auth.register)["$post"]
->;
+type ResponseType = InferResponseType<(typeof client.api.test.test)["$post"]>;
 type RequestType = InferRequestType<
-  (typeof client.api.auth.register)["$post"]
+  (typeof client.api.test.test)["$post"]
 >["json"];
 
-export const useRegister = () => {
+export const useTest = () => {
   const queryClient = useQueryClient();
 
   const mutation = useMutation<ResponseType, Error, RequestType>({
     mutationFn: async (json) => {
-      const response = await client.api.auth.register["$post"]({ json });
-
-      console.log("WE IN HERE");
+      const response = await client.api.test.test["$post"]({ json });
 
       if (!response.ok) {
-        throw new Error("Failed to register");
+        throw new Error("Something went wrong");
       }
 
       return await response.json();

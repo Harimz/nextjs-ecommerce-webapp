@@ -21,7 +21,6 @@ export default function RootLayout({
     <html lang="en">
       <body className={cn(overpass.className, "antialiased min-h-screen")}>
         <QueryProvider>
-          <p>Navbar</p>
           <Toaster richColors position="top-center" />
           {children}
         </QueryProvider>

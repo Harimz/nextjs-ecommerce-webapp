@@ -23,35 +23,44 @@ import {
 } from "@/components/ui/form";
 import Link from "next/link";
 import { useForm } from "react-hook-form";
-import { registerSchema } from "../schemas";
+import { loginSchema } from "../schemas";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 
 import { FcGoogle } from "react-icons/fc";
-import { useRegister } from "../api/use-register";
+import { useLogin } from "../api/use-login";
+import { signIn } from "next-auth/react";
+import { useRouter } from "next/navigation";
 
-export const RegisterCard = () => {
-  const { mutate, isPending } = useRegister();
-  const form = useForm<z.infer<typeof registerSchema>>({
-    resolver: zodResolver(registerSchema),
+export const LoginCard = () => {
+  const { mutate, isPending } = useLogin();
+  const router = useRouter();
+  const form = useForm<z.infer<typeof loginSchema>>({
+    resolver: zodResolver(loginSchema),
     defaultValues: {
-      name: "",
       email: "",
       password: "",
-      confirmPassword: "",
     },
   });
 
-  const onSubmit = (values: z.infer<typeof registerSchema>) => {
-    console.log(values);
-
+  const onSubmit = (values: z.infer<typeof loginSchema>) => {
     mutate(values);
+
+    router.refresh();
+
+    router.push("/");
+  };
+
+  const onSocial = (provider: "google") => {
+    signIn(provider, {
+      redirectTo: "/",
+    });
   };
 
   return (
     <Card className="rounded-sm">
       <CardHeader className="flex items-center justify-center text-center p-7">
-        <CardTitle className="text-2xl font-light">Sign Up</CardTitle>
+        <CardTitle className="text-2xl font-light">Login</CardTitle>
 
         <CardDescription>
           By signing up, you agree to our{" "}
@@ -66,7 +75,13 @@ export const RegisterCard = () => {
       </CardHeader>
 
       <CardContent className="">
-        <Button disabled={false} variant="outline" size="lg" className="w-full">
+        <Button
+          disabled={false}
+          variant="outline"
+          size="lg"
+          className="w-full"
+          onClick={() => onSocial("google")}
+        >
           <FcGoogle className="mr-2 size-5" />
           Login with Google
         </Button>
@@ -75,26 +90,6 @@ export const RegisterCard = () => {
       <CardContent className="">
         <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
-            <div>
-              <Label>Name</Label>
-              <FormField
-                name="name"
-                control={form.control}
-                render={({ field }) => (
-                  <FormItem>
-                    <FormControl>
-                      <Input
-                        type="text"
-                        placeholder="Enter your name"
-                        {...field}
-                      />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-            </div>
-
             <div>
               <Label>Email</Label>
               <FormField
@@ -135,28 +130,8 @@ export const RegisterCard = () => {
               />
             </div>
 
-            <div>
-              <Label>Confirm Password</Label>
-              <FormField
-                name="confirmPassword"
-                control={form.control}
-                render={({ field }) => (
-                  <FormItem>
-                    <FormControl>
-                      <Input
-                        type="password"
-                        placeholder="Confirm Password"
-                        {...field}
-                      />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-            </div>
-
             <Button size="lg" className="w-full" disabled={isPending}>
-              Register
+              Login
             </Button>
           </form>
         </Form>
@@ -168,9 +143,9 @@ export const RegisterCard = () => {
 
       <CardContent className="p-7 flex items-center justify-center">
         <p>
-          Already have an account?{" "}
-          <Link href="/login">
-            <span className="text-primary">Login</span>
+          Don&apos;t have an account?{" "}
+          <Link href="/register">
+            <span className="text-primary">Sign Up</span>
           </Link>
         </p>
       </CardContent>

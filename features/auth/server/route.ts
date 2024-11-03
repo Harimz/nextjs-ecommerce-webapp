@@ -1,10 +1,10 @@
 import { Hono } from "hono";
 import { zValidator } from "@hono/zod-validator";
-import { setCookie, deleteCookie } from "hono/cookie";
-import { loginSchema, registerSchema } from "../schemas";
+import { registerSchema } from "../schemas";
 import bcrypt from "bcryptjs";
 import { getUserByEmail } from "../queries";
 import { db } from "@/lib/db";
+import { verifyAuth } from "@/lib/auth/session-middleware";
 
 const app = new Hono().post(
   "/register",

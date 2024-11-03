@@ -1,7 +1,14 @@
 import React from "react";
+import { LoginCard } from "@/features/auth/components/login-card";
+import { getCurrent } from "@/features/user/queries";
+import { redirect } from "next/navigation";
 
-const LoginPage = () => {
-  return <div>LoginPage</div>;
+const LoginPage = async () => {
+  const session = await getCurrent();
+
+  if (session) redirect("/");
+
+  return <LoginCard />;
 };
 
 export default LoginPage;
