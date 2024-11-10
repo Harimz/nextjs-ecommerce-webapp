@@ -6,12 +6,12 @@ import Google from "next-auth/providers/google";
 import bcrypt from "bcryptjs";
 import { loginSchema } from "@/features/auth/schemas";
 
-import auth from "@/features/auth/server/route";
 import test from "@/features/home/server/route";
 import user from "@/features/user/server/route";
 
 import { getUserByEmail } from "@/features/auth/queries";
 import { authHandler, initAuthConfig } from "@/lib/auth/session-middleware";
+import { db } from "@/lib/db";
 
 const app = new Hono().basePath("/api");
 
@@ -83,10 +83,7 @@ app.use(
 
 app.use("/auth/*", authHandler());
 
-const routes = app
-  .route("/auth", auth)
-  .route("/test", test)
-  .route("/user", user);
+const routes = app.route("/test", test).route("/user", user);
 
 export const GET = handle(app);
 export const POST = handle(app);

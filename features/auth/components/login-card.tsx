@@ -47,8 +47,6 @@ export const LoginCard = () => {
     mutate(values);
 
     router.refresh();
-
-    router.push("/");
   };
 
   const onSocial = (provider: "google") => {
@@ -91,7 +89,7 @@ export const LoginCard = () => {
         <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
             <div>
-              <Label>Email</Label>
+              <Label htmlFor="email">Email</Label>
               <FormField
                 name="email"
                 control={form.control}
@@ -99,6 +97,7 @@ export const LoginCard = () => {
                   <FormItem>
                     <FormControl>
                       <Input
+                        id="email"
                         type="email"
                         placeholder="Enter email address"
                         {...field}
@@ -111,7 +110,7 @@ export const LoginCard = () => {
             </div>
 
             <div>
-              <Label>Password</Label>
+              <Label htmlFor="password">Password</Label>
               <FormField
                 name="password"
                 control={form.control}
@@ -119,6 +118,7 @@ export const LoginCard = () => {
                   <FormItem>
                     <FormControl>
                       <Input
+                        id="password"
                         type="password"
                         placeholder="Enter password"
                         {...field}

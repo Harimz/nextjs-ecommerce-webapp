@@ -2,7 +2,7 @@ import { headers as nextHeaders } from "next/headers";
 
 export const getCurrent = async () => {
   const session = await fetch(
-    `${process.env.NEXT_PUBLIC_APP_URL}/api/user/session`,
+    `${process.env.NEXT_PUBLIC_APP_URL}/api/user/current`,
     {
       credentials: "include",
       headers: typeof window === "undefined" ? nextHeaders() : undefined,

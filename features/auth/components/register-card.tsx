@@ -143,7 +143,7 @@ export const RegisterCard = () => {
                     <FormControl>
                       <Input
                         type="password"
-                        placeholder="Confirm Password"
+                        placeholder="Confirm password"
                         {...field}
                       />
                     </FormControl>
