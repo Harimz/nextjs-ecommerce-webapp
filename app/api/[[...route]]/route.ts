@@ -6,12 +6,13 @@ import Google from "next-auth/providers/google";
 import bcrypt from "bcryptjs";
 import { loginSchema } from "@/features/auth/schemas";
 
-import test from "@/features/home/server/route";
-import user from "@/features/user/server/route";
+import user from "@/features/auth/server/route";
 
 import { getUserByEmail } from "@/features/auth/queries";
-import { authHandler, initAuthConfig } from "@/lib/auth/session-middleware";
+import { authHandler, initAuthConfig } from "@/features/auth/middlewares";
+import { PrismaAdapter } from "@auth/prisma-adapter";
 import { db } from "@/lib/db";
+import { DefaultSession } from "@auth/core/types";
 
 const app = new Hono().basePath("/api");
 
@@ -19,6 +20,8 @@ app.use(
   "*",
   initAuthConfig((c) => ({
     secret: process.env.AUTH_SECRET!,
+    adapter: PrismaAdapter(db),
+    session: { strategy: "jwt" },
     providers: [
       Google({
         clientId: process.env.GOOGLE_CLIENT_ID,
@@ -50,6 +53,7 @@ app.use(
                 id: user.id,
                 email: user.email,
                 name: user.name,
+                role: user.role,
               };
           }
 
@@ -57,6 +61,19 @@ app.use(
         },
       }),
     ],
+    events: {
+      async linkAccount({ user, account }) {
+        if (!user || !user.email) return;
+
+        const existingUser = await getUserByEmail(user?.email);
+
+        if (existingUser) {
+          console.log(
+            `Linking ${account.provider} account to user: ${user.email}`
+          );
+        }
+      },
+    },
     callbacks: {
       async session({ session, token }) {
         session.user = {
@@ -83,7 +100,7 @@ app.use(
 
 app.use("/auth/*", authHandler());
 
-const routes = app.route("/test", test).route("/user", user);
+const routes = app.route("/user", user);
 
 export const GET = handle(app);
 export const POST = handle(app);

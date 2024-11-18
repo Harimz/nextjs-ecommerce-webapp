@@ -9,7 +9,7 @@ import {
 } from "@testing-library/react";
 import { TestQueryClientProvider } from "@/utils/testQueryClient";
 import { RegisterCard } from "../components/register-card";
-import { useRegister } from "@/features/user/api/use-register";
+import { useRegister } from "@/features/auth/api/use-register";
 import { Hono } from "hono";
 import { testClient } from "hono/testing";
 import { getUserByEmail } from "../queries";

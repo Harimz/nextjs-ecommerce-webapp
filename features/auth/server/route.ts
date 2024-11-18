@@ -2,14 +2,19 @@ import { Hono } from "hono";
 import { zValidator } from "@hono/zod-validator";
 import bcrypt from "bcryptjs";
 import { db } from "@/lib/db";
-import { verifyAuth } from "@/lib/auth/session-middleware";
-import { CurrentUserResponse } from "../types";
 import { getUserByEmail } from "@/features/auth/queries";
 import { registerSchema } from "@/features/auth/schemas";
+import { CurrentUserResponse } from "../types";
+import { verifyAuth } from "../middlewares";
 
 const app = new Hono()
   .get("/current", verifyAuth(), async (c) => {
     const session = c.get("authUser");
+    const user = await db.user.findUnique({
+      where: {
+        id: session.session.user?.id,
+      },
+    });
 
     if (!session || !session.session.user) {
       return c.json({ error: "Not authenticated" }, 401);
@@ -20,6 +25,8 @@ const app = new Hono()
         id: session.session.user.id ?? "",
         name: session.session.user.name ?? "",
         email: session.session.user.email ?? "",
+        image: session.session.user.image ?? "",
+        role: user?.role ?? "USER",
       },
     };
 

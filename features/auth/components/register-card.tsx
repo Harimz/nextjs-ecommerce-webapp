@@ -28,7 +28,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 
 import { FcGoogle } from "react-icons/fc";
-import { useRegister } from "../../user/api/use-register";
+import { useRegister } from "../api/use-register";
 
 export const RegisterCard = () => {
   const { mutate, isPending } = useRegister();

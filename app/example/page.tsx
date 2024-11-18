@@ -1,24 +1,10 @@
-import { Todo } from "@/features/example/components/todo";
+import { Example } from "@/features/example/components/example";
 import React from "react";
 
 const ExamplePage = () => {
-  const todos = [
-    {
-      id: 1,
-      title: "Wash dishes",
-      completed: false,
-    },
-    {
-      id: 2,
-      title: "Make dinner",
-      completed: true,
-    },
-  ];
   return (
     <div>
-      {todos.map((todo) => (
-        <Todo />
-      ))}
+      <Example />
     </div>
   );
 };

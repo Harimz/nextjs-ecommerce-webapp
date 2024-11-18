@@ -1,0 +1,19 @@
+version: "3.8"
+services:
+  frontend:
+    container_name: ecommerce
+    build:
+      context: . # Specify the current directory as the build context
+      dockerfile: Dockerfile # Specify the Dockerfile if it's not named 'Dockerfile'
+      target: dev # Ensure this target matches the stage in your Dockerfile
+    restart: always
+    command: npm run dev
+    environment:
+      - NODE_ENV=development
+      - DATABASE_URL=${DATABASE_URL}
+    volumes:
+      - .:/app
+      - /app/node_modules
+      - /app/.next
+    ports:
+      - "3000:3000"

@@ -9,11 +9,16 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { DottedSeparator } from "@/components/dotted-separator";
+import { FaChevronDown } from "react-icons/fa";
+import { MdOutlineAdminPanelSettings } from "react-icons/md";
+import { RiUserSettingsLine } from "react-icons/ri";
 
 import { signOut } from "next-auth/react";
 import { useCurrent } from "../api/use-current";
+import Link from "next/link";
+import { Button } from "@/components/ui/button";
 
-export const UserButton = () => {
+export const UserButton = ({ role }: { role: string }) => {
   const { data: user, isLoading } = useCurrent();
 
   if (isLoading) {
@@ -28,7 +33,7 @@ export const UserButton = () => {
     return null;
   }
 
-  const { name, email } = user;
+  const { name, email, image } = user;
 
   const avatarFallback = name
     ? name.charAt(0).toUpperCase()
@@ -37,11 +42,24 @@ export const UserButton = () => {
   return (
     <DropdownMenu modal={false}>
       <DropdownMenuTrigger className="outline-none relative">
-        <Avatar className="size-10 hover:opacity-75 transition border border-neutral-300">
-          <AvatarFallback className="bg-neutral-200 font-medium text-neutral-500 flex items-center justify-center">
-            {avatarFallback}
-          </AvatarFallback>
-        </Avatar>
+        <div className="flex gap-4 items-center md:w-[14rem]">
+          <Avatar className="size-10 hover:opacity-75 transition border border-neutral-300">
+            <AvatarImage src={image} />
+            <AvatarFallback className="bg-neutral-200 font-medium text-neutral-500 flex items-center justify-center">
+              {avatarFallback}
+            </AvatarFallback>
+          </Avatar>
+
+          <div className="md:flex items-center gap-4 hidden">
+            <div className="flex flex-col items-start">
+              <p className="text-muted-foreground font-extralight text-sm">
+                Welcome Back!
+              </p>
+              <h1 className="font-semibold text-lg">{name}</h1>
+            </div>
+            <FaChevronDown size={12} />
+          </div>
+        </div>
       </DropdownMenuTrigger>
 
       <DropdownMenuContent
@@ -52,6 +70,7 @@ export const UserButton = () => {
       >
         <div className="flex flex-col items-center justify-center gap-2 px-2.5 py-4">
           <Avatar className="size-[52px] transition border border-neutral-300">
+            <AvatarImage src={image} />
             <AvatarFallback className="bg-neutral-200 text-xl font-medium text-neutral-500 flex items-center justify-center">
               {avatarFallback}
             </AvatarFallback>
@@ -67,6 +86,34 @@ export const UserButton = () => {
         </div>
 
         <DottedSeparator className="mb-1" />
+
+        <ul className="space-y-4">
+          <li>
+            <Link passHref href="/profile">
+              <Button
+                variant="ghost"
+                className="flex gap-2 w-full justify-start"
+              >
+                <RiUserSettingsLine />
+                <p>User Profile</p>
+              </Button>
+            </Link>
+          </li>
+          {role === "ADMIN" && (
+            <li>
+              <Link passHref href="/admin">
+                <Button
+                  variant="ghost"
+                  className="flex gap-2 w-full justify-start"
+                >
+                  <MdOutlineAdminPanelSettings />
+                  <p>Admin</p>
+                </Button>
+              </Link>
+            </li>
+          )}
+        </ul>
+
         <DropdownMenuItem
           onClick={() => signOut({ redirectTo: "/" })}
           className="h-10 flex items-center justify-center text-amber-700 font-medium cursor-pointer"
