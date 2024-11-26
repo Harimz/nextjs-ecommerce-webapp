@@ -38,10 +38,26 @@ export function setEnvDefaults(env: AuthEnv, config: AuthConfig) {
   coreSetEnvDefaults(env, config);
 }
 
-export function reqWithEnvUrl(req: Request, authUrl?: string) {
+export function reqWithEnvUrl(req: Request, authUrl?: string): Request {
+  let body: BodyInit | null = null;
+
+  // Clone the request body only if it hasn't been consumed
+  if (req.bodyUsed === false) {
+    body = req.clone().body; // Clone ensures the body is untouched
+  }
+
+  const init: RequestInit = {
+    method: req.method,
+    headers: req.headers,
+    body,
+    // Add duplex if body exists
+    ...(body ? { duplex: "half" } : {}),
+  };
+
   if (authUrl) {
     const reqUrlObj = new URL(req.url);
     const authUrlObj = new URL(authUrl);
+
     const props = [
       "hostname",
       "protocol",
@@ -49,27 +65,27 @@ export function reqWithEnvUrl(req: Request, authUrl?: string) {
       "password",
       "username",
     ] as const;
+
     for (const prop of props) {
       if (authUrlObj[prop]) reqUrlObj[prop] = authUrlObj[prop];
     }
-    return new Request(reqUrlObj.href, req);
+
+    return new Request(reqUrlObj.href, init);
   }
-  const newReq = new Request(req);
-  const url = new URL(newReq.url);
-  const proto = newReq.headers.get("x-forwarded-proto");
-  const host =
-    newReq.headers.get("x-forwarded-host") ?? newReq.headers.get("host");
+
+  const url = new URL(req.url);
+  const proto = req.headers.get("x-forwarded-proto");
+  const host = req.headers.get("x-forwarded-host") ?? req.headers.get("host");
+
   if (proto != null) url.protocol = proto.endsWith(":") ? proto : `${proto}:`;
   if (host != null) {
     url.host = host;
     const portMatch = host.match(/:(\d+)$/);
     if (portMatch) url.port = portMatch[1];
     else url.port = "";
-    newReq.headers.delete("x-forwarded-host");
-    newReq.headers.delete("Host");
-    newReq.headers.set("Host", host);
   }
-  return new Request(url.href, newReq);
+
+  return new Request(url.href, init);
 }
 
 export async function getAuthUser(c: Context): Promise<AuthUser | null> {
@@ -84,7 +100,7 @@ export async function getAuthUser(c: Context): Promise<AuthUser | null> {
 
   let authUser: AuthUser = {} as AuthUser;
 
-  const response = (await Auth(request, {
+  const response = await Auth(request, {
     ...config,
     callbacks: {
       ...config.callbacks,
@@ -96,11 +112,19 @@ export async function getAuthUser(c: Context): Promise<AuthUser | null> {
         return { user, ...session } satisfies Session;
       },
     },
-  })) as Response;
+  });
 
-  const session = (await response.json()) as Session | null;
+  if (!response.ok) {
+    console.error("Auth request failed:", response.status, response.statusText);
+    return null;
+  }
 
-  return session?.user ? authUser : null;
+  const session = await response.json(); // Ensure this is the only usage
+  if (session?.user) {
+    authUser.session = session;
+    return authUser;
+  }
+  return null;
 }
 
 export function verifyAuth(): MiddlewareHandler {

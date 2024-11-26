@@ -1,12 +1,12 @@
 import { Hono } from "hono";
 import { zValidator } from "@hono/zod-validator";
 import { db } from "@/lib/db";
-import { verifyAdmin, verifyAuth } from "@/features/auth/middlewares";
+import { verifyAuth } from "@/features/auth/middlewares";
 import { removeFileFromS3, uploadFileToS3 } from "@/lib/s3";
 import { removeImageSchema } from "../shemas";
 
 const app = new Hono()
-  .post("/images", verifyAuth(), verifyAdmin(), async (c) => {
+  .post("/images", verifyAuth(), async (c) => {
     try {
       const formData = await c.req.formData();
 
@@ -36,12 +36,10 @@ const app = new Hono()
       return c.json({ error: "Could not upload files" }, 500);
     }
   })
-  .delete("/images/:imageUrl", verifyAuth(), verifyAdmin(), async (c) => {
+  .delete("/images/:imageUrl", verifyAuth(), async (c) => {
     try {
       const encodedImageUrl = c.req.param("imageUrl");
       const imageUrl = decodeURIComponent(encodedImageUrl);
-
-      console.log("WE ION HEREEE");
 
       const response = await removeFileFromS3(imageUrl);
 

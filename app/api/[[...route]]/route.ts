@@ -9,6 +9,7 @@ import { loginSchema } from "@/features/auth/schemas";
 import user from "@/features/auth/server/route";
 import billboards from "@/features/billboards/server/route";
 import admin from "@/features/admin/server/route";
+import categories from "@/features/categories/server/route";
 
 import { getUserByEmail } from "@/features/auth/queries";
 import { authHandler, initAuthConfig } from "@/features/auth/middlewares";
@@ -105,7 +106,8 @@ app.use("/auth/*", authHandler());
 const routes = app
   .route("/user", user)
   .route("/admin", admin)
-  .route("/admin/billboards", billboards);
+  .route("/admin/billboards", billboards)
+  .route("/admin/categories", categories);
 
 export const GET = handle(app);
 export const POST = handle(app);
