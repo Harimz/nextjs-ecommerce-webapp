@@ -42,3 +42,22 @@ model Account {
 
   @@unique([provider, providerAccountId])
 }
+
+model Billboard {
+  id        String    @id @default(uuid())
+  label     String
+  message   String
+  imageUrl  String
+  category  Category?
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+}
+
+model Category {
+  id          String    @id @default(uuid())
+  name        String
+  billboardId String    @unique
+  billboard   Billboard @relation(fields: [billboardId], references: [id])
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+}

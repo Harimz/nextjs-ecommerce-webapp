@@ -7,6 +7,7 @@ import type { Context, MiddlewareHandler } from "hono";
 import { env } from "hono/adapter";
 import { HTTPException } from "hono/http-exception";
 import { setEnvDefaults as coreSetEnvDefaults } from "@auth/core";
+import { db } from "@/lib/db";
 
 declare module "hono" {
   interface ContextVariableMap {
@@ -113,6 +114,23 @@ export function verifyAuth(): MiddlewareHandler {
       throw new HTTPException(401, { res });
     }
     c.set("authUser", authUser);
+
+    await next();
+  };
+}
+
+export function verifyAdmin(): MiddlewareHandler {
+  return async (c, next) => {
+    const session = c.get("authUser");
+    const user = await db.user.findUnique({
+      where: {
+        id: session.session.user?.id,
+      },
+    });
+
+    if (!user || user.role !== "ADMIN") {
+      throw new HTTPException(403, { message: "Forbidden" });
+    }
 
     await next();
   };

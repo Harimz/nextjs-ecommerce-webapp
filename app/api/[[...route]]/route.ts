@@ -7,6 +7,8 @@ import bcrypt from "bcryptjs";
 import { loginSchema } from "@/features/auth/schemas";
 
 import user from "@/features/auth/server/route";
+import billboards from "@/features/billboards/server/route";
+import admin from "@/features/admin/server/route";
 
 import { getUserByEmail } from "@/features/auth/queries";
 import { authHandler, initAuthConfig } from "@/features/auth/middlewares";
@@ -100,10 +102,14 @@ app.use(
 
 app.use("/auth/*", authHandler());
 
-const routes = app.route("/user", user);
+const routes = app
+  .route("/user", user)
+  .route("/admin", admin)
+  .route("/admin/billboards", billboards);
 
 export const GET = handle(app);
 export const POST = handle(app);
 export const PATCH = handle(app);
+export const DELETE = handle(app);
 
 export type AppType = typeof routes;
